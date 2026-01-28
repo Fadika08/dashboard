@@ -55,9 +55,9 @@ type TelemetryPoint = {
   MC: number;
 };
 
-const MQTT_HOST = "broker.hivemq.com";
-const MQTT_PORT = 8000;
-const MQTT_PATH = "/mqtt";
+const MQTT_HOST = import.meta.env.VITE_MQTT_HOST;
+const MQTT_PORT = import.meta.env.VITE_MQTT_PORT;
+const MQTT_PATH = import.meta.env.VITE_MQTT_PATH;
 const MQTT_TOPIC_DATA = "kopi/greenbeans/data";
 const MQTT_TOPIC_PRED = "kopi/greenbeans/prediction";
 const LS_LAST_MC = "gb:last_mc";
