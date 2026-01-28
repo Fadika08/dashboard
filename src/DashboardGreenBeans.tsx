@@ -45,7 +45,7 @@ const fmtTime = (t: number) =>
   });
 
 const MC_IDEAL_MIN = 10;
-const MC_IDEAL_MAX = 12,5;
+const MC_IDEAL_MAX = 12.5;
 // 👇 Type data yang dipakai grafik & kartu
 type TelemetryPoint = {
   ts: number; // epoch ms
