@@ -72,7 +72,9 @@ function useMqttStream() {
   );
 
   useEffect(() => {
-    const url = `ws://${MQTT_HOST}:${MQTT_PORT}${MQTT_PATH}`;
+    const proto = window.location.protocol === "https:" ? "wss" : "ws";
+    const url = `${proto}://${MQTT_HOST}:${MQTT_PORT}${MQTT_PATH}`;
+
     const client = mqtt.connect(url, { keepalive: 60, reconnectPeriod: 2000 });
 
     client.on("connect", () => {
@@ -129,11 +131,9 @@ function useMqttStream() {
 
     client.on("error", (err) => console.error("MQTT error:", err));
 
-    // ✅ ini kunci: cleanup function
-    return () => {
-      client.end(true);
-    };
-  }, []); // tetap []
+    return () => client.end(true);
+  }, []);
+  // tetap []
 
   return { points, latest };
 }
