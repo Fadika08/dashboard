@@ -356,6 +356,16 @@ export default function DashboardGreenBeans() {
               ))}
             </Select>
             <Button
+              className="bg-zinc-800 hover:bg-zinc-700"
+              onClick={() =>
+                alert(
+                  "Ekspor CSV tersedia di versi build / gunakan tombol di UI demo.",
+                )
+              }
+            >
+              Ekspor CSV
+            </Button>
+            <Button
               className="bg-emerald-600 hover:bg-emerald-600/90"
               onClick={testPredict}
             >
