@@ -365,13 +365,13 @@ export default function DashboardGreenBeans() {
             >
               Ekspor CSV
             </Button>
-            <Button
-              className="bg-emerald-600 hover:bg-emerald-600/90"
-              onClick={testPredict}
-            >
-              Test Predict (Railway)
-            </Button>
           </div>
+          <Button
+            className="bg-emerald-600 hover:bg-emerald-600/90"
+            onClick={testPredict}
+          >
+            Test Predict (Railway)
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
