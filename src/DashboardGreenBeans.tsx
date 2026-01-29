@@ -58,6 +58,7 @@ type TelemetryPoint = {
 const MQTT_HOST = import.meta.env.VITE_MQTT_HOST;
 const MQTT_PORT = import.meta.env.VITE_MQTT_PORT;
 const MQTT_PATH = import.meta.env.VITE_MQTT_PATH;
+const API_URL = import.meta.env.VITE_API_URL;
 const MQTT_TOPIC_DATA = "kopi/greenbeans/data";
 const MQTT_TOPIC_PRED = "kopi/greenbeans/prediction";
 const LS_LAST_MC = "gb:last_mc";
@@ -65,6 +66,25 @@ const LS_LAST_MC = "gb:last_mc";
 function useMqttStream() {
   const [points, setPoints] = useState<TelemetryPoint[]>([]);
   const [latest, setLatest] = useState<TelemetryPoint | null>(null);
+
+  async function predictFromApi(
+    temp_c: number,
+    rh: number,
+    moisture_sensor: number,
+  ) {
+    const res = await fetch(`${API_URL}/predict`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        coolness: temp_c, // sementara pakai temp_c sebagai coolness
+        rh: rh,
+        wetness_adc: moisture_sensor,
+      }),
+    });
+
+    if (!res.ok) throw new Error(`Predict failed: ${res.status}`);
+    return await res.json(); // { mc_pred, label }
+  }
 
   // ✅ init ref sekali (tidak dipanggil ())
   const lastMcRef = useRef<number>(
@@ -108,20 +128,44 @@ function useMqttStream() {
         }
 
         if (topic === MQTT_TOPIC_DATA) {
-          const fallbackMC = Number.isFinite(lastMcRef.current)
-            ? lastMcRef.current
-            : (latest?.MC ?? 0);
+          const temp = Number(payload.temp_c);
+          const rh = Number(payload.rh);
+          const ms = Number(payload.moisture_sensor); // wetness_adc
 
+          // update point dulu pakai MC terakhir (biar grafik tetap jalan)
+          const now = Date.now();
           const point: TelemetryPoint = {
             ts: now,
-            T: Number(payload.temp_c),
-            RH: Number(payload.rh),
+            T: temp,
+            RH: rh,
             CO2: Number(payload.co2_ppm),
-            MC: fallbackMC,
+            MC: Number.isFinite(lastMcRef.current)
+              ? lastMcRef.current
+              : (latest?.MC ?? 0),
           };
 
           setPoints((prev) => [...prev.slice(-600), point]);
           setLatest(point);
+
+          // lalu minta prediksi ke Railway (async)
+          predictFromApi(temp, rh, ms)
+            .then((data) => {
+              const mc = Number(data.mc_pred);
+              if (Number.isFinite(mc)) {
+                lastMcRef.current = mc;
+                localStorage.setItem(LS_LAST_MC, String(mc));
+
+                // update latest & titik terakhir
+                setLatest((prev) => (prev ? { ...prev, MC: mc } : prev));
+                setPoints((prev) => {
+                  if (prev.length === 0) return prev;
+                  const last = prev[prev.length - 1];
+                  return [...prev.slice(0, -1), { ...last, MC: mc }];
+                });
+              }
+            })
+            .catch((e) => console.error("Predict API error:", e));
+
           return;
         }
       } catch (e) {
