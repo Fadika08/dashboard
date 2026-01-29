@@ -335,7 +335,7 @@ export default function DashboardGreenBeans() {
   return (
     <div className="min-h-screen w-full p-6 md:p-8 bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-900 text-zinc-100">
       <div className="max-w-[1200px] mx-auto space-y-6">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 flex-wrap">
           <div>
             <motion.h1
               initial={{ opacity: 0, y: 10 }}
