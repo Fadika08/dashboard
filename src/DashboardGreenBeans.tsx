@@ -58,7 +58,9 @@ type TelemetryPoint = {
 const MQTT_HOST = import.meta.env.VITE_MQTT_HOST;
 const MQTT_PORT = import.meta.env.VITE_MQTT_PORT;
 const MQTT_PATH = import.meta.env.VITE_MQTT_PATH;
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://backendgreenbean-production.up.railway.app";
 const MQTT_TOPIC_DATA = "kopi/greenbeans/data";
 const MQTT_TOPIC_PRED = "kopi/greenbeans/prediction";
 const LS_LAST_MC = "gb:last_mc";
@@ -355,6 +357,7 @@ export default function DashboardGreenBeans() {
                 </SelectItem>
               ))}
             </Select>
+
             <Button
               className="bg-zinc-800 hover:bg-zinc-700"
               onClick={() =>
@@ -365,13 +368,14 @@ export default function DashboardGreenBeans() {
             >
               Ekspor CSV
             </Button>
+
+            <Button
+              className="bg-emerald-600 hover:bg-emerald-600/90"
+              onClick={testPredict}
+            >
+              Test Predict (Railway)
+            </Button>
           </div>
-          <Button
-            className="bg-emerald-600 hover:bg-emerald-600/90"
-            onClick={testPredict}
-          >
-            Test Predict (Railway)
-          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
