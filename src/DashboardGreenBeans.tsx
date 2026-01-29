@@ -291,6 +291,23 @@ export default function DashboardGreenBeans() {
   const [mcMin, setMcMin] = useState(MC_IDEAL_MIN);
   const [mcMax, setMcMax] = useState(MC_IDEAL_MAX);
   const [notify, setNotify] = useState(true);
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "https://backendgreenbean-production.up.railway.app";
+  const [apiPred, setApiPred] = useState<{
+    mc_pred: number;
+    label: string;
+  } | null>(null);
+
+  const testPredict = async () => {
+    const res = await fetch(`${API_URL}/predict`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ coolness: 26.5, rh: 78.2, wetness_adc: 3020 }),
+    });
+    const data = await res.json();
+    setApiPred(data);
+  };
 
   const online = true;
   const lastSeen = useMemo(() => (latest ? fmtTime(latest.ts) : "–"), [latest]);
@@ -339,14 +356,10 @@ export default function DashboardGreenBeans() {
               ))}
             </Select>
             <Button
-              className="bg-zinc-800 hover:bg-zinc-700"
-              onClick={() =>
-                alert(
-                  "Ekspor CSV tersedia di versi build / gunakan tombol di UI demo.",
-                )
-              }
+              className="bg-emerald-600 hover:bg-emerald-600/90"
+              onClick={testPredict}
             >
-              Ekspor CSV
+              Test Predict (Railway)
             </Button>
           </div>
         </div>
@@ -411,7 +424,7 @@ export default function DashboardGreenBeans() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <StatCard
             title="Moisture Content"
-            value={latest?.MC ?? "–"}
+            value={apiPred?.mc_pred ?? latest?.MC ?? "–"}
             unit="%"
             icon={Gauge}
             warn={mcWarn}
